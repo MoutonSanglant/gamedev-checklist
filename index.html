@@ -1,12 +1,163 @@
 <!doctype html>
-<html lang="en">
+<html lang='en'>
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Game Dev CheckList</title>
-	<meta name="description" content="A general checklist to sum up your skills in the Game Dev industry">
-	<meta name="author" content="vxdcxw">
+<meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Game Dev CheckList</title>
+<meta name='description' content='A general checklist to sum up your categories in the Game Dev industry'>
+<meta name='author' content='vxdcxw'>
+<style>
+.element {
+  display: block;
+}
+
+.hidden {
+  display: none !important;
+}
+</style>
 </head>
-<body>
+<body onload='start()'>
+<h1>The Game Dev Checklist</h1>
+<div id='checklist'>
+</div>
+<script>
+
+const CATEGORY = {
+  GENERIC: 'generic',
+  PROGRAMMING: 'programming',
+  GRAPHIC: 'graphics',
+  AUDIO: 'audio',
+}
+
+const SPEC = {
+  NETWORK: 'networking',
+  MATH: 'mathematics',
+  G_2D: '2d',
+  G_3D: '3d',
+  SOUND_DESIGN: 'sound design',
+  COMPOSITION: 'composition',
+}
+
+// DOM
+const root = document.querySelector('#checklist');
+
+// Conditions
+const prog0 = createCondition('category', CATEGORY.PROGRAMMING, {'min': 0, 'max': 2});
+const prog1 = createCondition('category', CATEGORY.PROGRAMMING, {'min': 1, 'max': 3});
+const reward_prog = createReward('category', CATEGORY.PROGRAMMING, 1);
+
+// Tables
+const categories = [];
+const checklist = [];
+const datas = { 'levels': {} };
+
+// Define categories
+addCategory(categories, CATEGORY.PROGRAMMING, [SPEC.NETWORK, SPEC.MATH]);
+addCategory(categories, CATEGORY.GRAPHICS, [SPEC.G_2D, SPEC.G_3D]);
+addCategory(categories, CATEGORY.AUDIO, [SPEC.SOUND_DESIGN, SPEC.COMPOSITION]);
+
+addChecklistElement(checklist, 'prog-0', 'Did you ever write a single line of code?', [prog0], [reward_prog]);
+addChecklistElement(checklist, 'prog-1', 'Do you know what a function is?', [prog1], [reward_prog]);
+
+
+// Populate datas
+categories.forEach(category => datas.levels[category.name] = 0);
+
+function start()
+{
+  updateChecklist();
+}
+
+function addCheckbox(id, description)
+{
+  const element = document.querySelector("input[id=" + id + "]");
+
+  if (element != null)
+  {
+    element.parentNode.classList.remove('hidden');
+
+    return;
+  }
+
+  const div = document.createElement('div');
+  const input = document.createElement('input');
+  const label = document.createElement('label');
+
+  div.classList.add('element');
+
+  input.setAttribute('type', 'checkbox');
+  input.setAttribute('id', id);
+  label.setAttribute('for', id);
+  label.innerHTML = description;
+
+  div.appendChild(input);
+  div.appendChild(label);
+  root.appendChild(div);
+
+  input.addEventListener('change', updateChecklist);
+}
+
+function removeCheckbox(id)
+{
+  const element = document.querySelector("input[id=" + id + "]");
+
+  if (element == null) return;
+
+  element.parentNode.classList.add('hidden');
+}
+
+function updateChecklist()
+{
+  // Attribute rewards
+  const selected = checklist.find(el => el.id == this.id);
+
+  if (selected !== undefined)
+    selected.rewards.forEach(reward => datas.levels[reward.name] += (this.checked) ? reward.amount : -reward.amount);
+
+  // Show new elements
+  const elements = checklist.filter(el => filterByCategory(el.conditions));
+
+  elements.forEach(el => addCheckbox(el.id, el.label));
+
+  // Hide filtered elements
+  hidden_elements = checklist.filter(el => filterByCategoryReverse(el.conditions));
+
+  hidden_elements.forEach(el => removeCheckbox(el.id));
+}
+
+function filterByCategory(conditions)
+{
+  return conditions.filter(cond => cond.min <= datas.levels[cond.name] && datas.levels[cond.name] < cond.max).length > 0;
+}
+
+function filterByCategoryReverse(conditions)
+{
+  return conditions.filter(cond => !(cond.min <= datas.levels[cond.name] && datas.levels[cond.name] < cond.max)).length > 0;
+}
+
+// ================
+// Tables functions
+// ================
+function addCategory(target, name, specialities)
+{
+  target.push({'name': name, 'specialities': specialities});
+}
+
+function addChecklistElement(target, id, label, conditions, rewards)
+{
+  target.push({'id': id, 'label': label, 'conditions': conditions, 'rewards': rewards, 'status': {'visible': false, 'checked': false}});
+}
+
+function createCondition(type, name, limits)
+{
+  return {'type': type, 'name': name, 'min': limits.min, 'max': limits.max};
+}
+
+function createReward(type, name, amount)
+{
+  return {'type': type, 'name': name, 'amount': amount};
+}
+
+</script>
 </body>
 </html>
