@@ -7,19 +7,38 @@
 <meta name='description' content='A general checklist to sum up your categories in the Game Dev industry'>
 <meta name='author' content='vxdcxw'>
 <style>
-.element {
-  display: block;
+#checklist {
+  list-style-type: none;
 }
 
-.hidden {
-  display: none !important;
+#checklist li {
+  background-color: #ddd;
+  border-radius: 7px;
+  height: auto;
+  padding: 0.6em 0.6em;
+  margin-bottom: 0.4em;
+  overflow: hidden;
+  transition: height 0.3s, padding 0.3s;
+}
+
+#checklist li input {
+  margin-right: 0.6em;
+}
+
+#checklist li.locked {
+  text-decoration: line-through;
+  color: #666;
+}
+
+#checklist li.hidden {
+  height: 0;
+  padding: 0 0.6em;
 }
 </style>
 </head>
 <body onload='start()'>
 <h1>The Game Dev Checklist</h1>
-<div id='checklist'>
-</div>
+<ul id='checklist'></ul>
 <script>
 
 const CATEGORY = {
@@ -74,36 +93,44 @@ function addCheckbox(id, description)
 
   if (element != null)
   {
-    element.parentNode.classList.remove('hidden');
+    disableCheckbox(element, false);
 
     return;
   }
 
-  const div = document.createElement('div');
+  const li = document.createElement('li');
   const input = document.createElement('input');
   const label = document.createElement('label');
-
-  div.classList.add('element');
 
   input.setAttribute('type', 'checkbox');
   input.setAttribute('id', id);
   label.setAttribute('for', id);
   label.innerHTML = description;
 
-  div.appendChild(input);
-  div.appendChild(label);
-  root.appendChild(div);
+  li.appendChild(input);
+  li.appendChild(label);
+  root.appendChild(li);
 
   input.addEventListener('change', updateChecklist);
 }
 
-function removeCheckbox(id)
+function lockCheckbox(id)
 {
   const element = document.querySelector("input[id=" + id + "]");
 
   if (element == null) return;
 
-  element.parentNode.classList.add('hidden');
+  disableCheckbox(element, true);
+}
+
+function disableCheckbox(element, disable)
+{
+  element.disabled = disable;
+
+  if (disable)
+    element.parentNode.classList.add(element.checked ? 'locked' : 'hidden');
+  else
+    element.parentNode.classList.remove(element.checked ? 'locked' : 'hidden');
 }
 
 function updateChecklist()
@@ -119,10 +146,10 @@ function updateChecklist()
 
   elements.forEach(el => addCheckbox(el.id, el.label));
 
-  // Hide filtered elements
-  hidden_elements = checklist.filter(el => filterByCategoryReverse(el.conditions));
+  // Lock filtered elements
+  locked_elements = checklist.filter(el => filterByCategoryReverse(el.conditions));
 
-  hidden_elements.forEach(el => removeCheckbox(el.id));
+  locked_elements.forEach(el => lockCheckbox(el.id));
 }
 
 function filterByCategory(conditions)
