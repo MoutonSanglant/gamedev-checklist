@@ -57,9 +57,6 @@ const SPEC = {
   COMPOSITION: 'composition',
 }
 
-// DOM
-const root = document.querySelector('#checklist');
-
 // Conditions
 const prog0 = createCondition('category', CATEGORY.PROGRAMMING, {'min': 0, 'max': 2});
 const prog1 = createCondition('category', CATEGORY.PROGRAMMING, {'min': 1, 'max': 3});
@@ -84,24 +81,22 @@ categories.forEach(category => datas.levels[category.name] = 0);
 
 function start()
 {
+  createChecklist(document.querySelector('#checklist'));
   updateChecklist();
 }
 
-function addCheckbox(id, description)
+function createChecklist(root)
 {
-  const element = document.querySelector("input[id=" + id + "]");
+  checklist.forEach(el => addCheckbox(root, el.id, el.label));
+}
 
-  if (element != null)
-  {
-    disableCheckbox(element, false);
-
-    return;
-  }
-
+function addCheckbox(root, id, description)
+{
   const li = document.createElement('li');
   const input = document.createElement('input');
   const label = document.createElement('label');
 
+  input.addEventListener('change', updateChecklist);
   input.setAttribute('type', 'checkbox');
   input.setAttribute('id', id);
   label.setAttribute('for', id);
@@ -110,21 +105,12 @@ function addCheckbox(id, description)
   li.appendChild(input);
   li.appendChild(label);
   root.appendChild(li);
-
-  input.addEventListener('change', updateChecklist);
 }
 
-function lockCheckbox(id)
+function disableCheckbox(id, disable)
 {
   const element = document.querySelector("input[id=" + id + "]");
 
-  if (element == null) return;
-
-  disableCheckbox(element, true);
-}
-
-function disableCheckbox(element, disable)
-{
   element.disabled = disable;
 
   if (disable)
@@ -144,12 +130,12 @@ function updateChecklist()
   // Show new elements
   const elements = checklist.filter(el => filterByCategory(el.conditions));
 
-  elements.forEach(el => addCheckbox(el.id, el.label));
+  elements.forEach(el => disableCheckbox(el.id, false));
 
   // Lock filtered elements
-  locked_elements = checklist.filter(el => filterByCategoryReverse(el.conditions));
+  const locked_elements = checklist.filter(el => filterByCategoryReverse(el.conditions));
 
-  locked_elements.forEach(el => lockCheckbox(el.id));
+  locked_elements.forEach(el => disableCheckbox(el.id, true));
 }
 
 function filterByCategory(conditions)
