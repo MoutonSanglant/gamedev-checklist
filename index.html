@@ -12,27 +12,41 @@
 }
 
 #checklist li {
+  display: flex;
   background-color: #ddd;
   border-radius: 7px;
-  height: auto;
-  padding: 0.6em 0.6em;
-  margin-bottom: 0.4em;
+  height: 2em;
+  padding: 0.4em 0.4em;
+  margin-bottom: 0.6em;
   overflow: hidden;
-  transition: height 0.3s, padding 0.3s;
-}
-
-#checklist li input {
-  margin-right: 0.6em;
+  color: rgba(22, 22, 22, 1);
+  transition: height 0.3s, padding 0.3s, color 0.2s;
 }
 
 #checklist li.locked {
   text-decoration: line-through;
-  color: #666;
+  color: rgba(102, 102, 102, 1);
 }
 
 #checklist li.hidden {
   height: 0;
-  padding: 0 0.6em;
+  padding: 0 0.4em;
+  color: rgba(102, 102, 102, 0);
+}
+
+#checklist li * {
+  margin: auto 0;
+  height: 100%;
+  line-height: 230%;
+}
+
+#checklist li input {
+  margin-left: 0.8em;
+}
+
+#checklist label {
+  margin-left: 0.6em;
+  width: 100%;
 }
 </style>
 </head>
